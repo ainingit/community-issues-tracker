@@ -11,17 +11,27 @@ datasource db {
 }
 
 model NGO {
-  id          String   @id @default(cuid())
-  name        String
-  description String
-  website     String?
-  email       String?
-  phone       String?
-  state       String
-  focusAreas  String   // Comma-separated values
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  issues      Issue[]
+  id             String          @id @default(cuid())
+  name           String
+  description    String
+  website        String?
+  email          String?
+  phone          String?
+  state          String
+  focusAreas     String          // Comma-separated values
+  // Location fields
+  address        String?
+  latitude       Float?
+  longitude      Float?
+  // Activity tracking
+  lastActivityAt DateTime        @default(now())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  // Relations
+  issues         Issue[]
+  projects       Project[]
+  volunteerCalls VolunteerCall[]
+  impactReports  ImpactReport[]
 }
 
 model Issue {
@@ -34,6 +44,53 @@ model Issue {
   priority    String   @default("medium") // low, medium, high, critical
   ngoId       String?
   ngo         NGO?     @relation(fields: [ngoId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  status      String   @default("active") // planning, active, completed, paused
+  startDate   DateTime
+  endDate     DateTime?
+  budget      Float?
+  beneficiaries Int?    // Number of people helped
+  location    String?
+  ngoId       String
+  ngo         NGO      @relation(fields: [ngoId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model VolunteerCall {
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  volunteersNeeded Int
+  volunteersRegistered Int @default(0)
+  skills       String?  // Comma-separated skills needed
+  location     String
+  startDate    DateTime
+  endDate      DateTime?
+  status       String   @default("open") // open, filled, closed
+  ngoId        String
+  ngo          NGO      @relation(fields: [ngoId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model ImpactReport {
+  id          String   @id @default(cuid())
+  title       String
+  testimony   String
+  photoUrl    String?  // URL to photo
+  reporterName String?
+  location    String?
+  verified    Boolean  @default(false)
+  ngoId       String
+  ngo         NGO      @relation(fields: [ngoId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

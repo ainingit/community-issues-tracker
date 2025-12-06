@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-// GET all NGOs
+// GET all NGOs with activity status
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -27,9 +27,23 @@ export async function GET(request: NextRequest) {
     const ngos = await prisma.nGO.findMany({
       where,
       orderBy: { name: 'asc' },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        website: true,
+        email: true,
+        phone: true,
+        state: true,
+        focusAreas: true,
+        lastActivityAt: true,
         _count: {
-          select: { issues: true }
+          select: { 
+            issues: true,
+            projects: true,
+            volunteerCalls: true,
+            impactReports: true
+          }
         }
       }
     })
@@ -54,7 +68,10 @@ export async function POST(request: NextRequest) {
         email: body.email || null,
         phone: body.phone || null,
         state: body.state,
-        focusAreas: body.focusAreas
+        focusAreas: body.focusAreas,
+        latitude: body.latitude || null,
+        longitude: body.longitude || null,
+        address: body.address || null
       }
     })
 
@@ -64,4 +81,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to create NGO' }, { status: 500 })
   }
 }
-
