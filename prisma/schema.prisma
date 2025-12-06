@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model NGO {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  website     String?
+  email       String?
+  phone       String?
+  state       String
+  focusAreas  String   // Comma-separated values
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  issues      Issue[]
+}
+
+model Issue {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String
+  state       String
+  status      String   @default("open") // open, in_progress, resolved
+  priority    String   @default("medium") // low, medium, high, critical
+  ngoId       String?
+  ngo         NGO?     @relation(fields: [ngoId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
